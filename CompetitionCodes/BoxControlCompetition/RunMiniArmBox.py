@@ -285,9 +285,9 @@ def _physics_loop(simulate: _Simulate, loader: Optional[_InternalLoaderType]):
         m, d = result
         # ee_ctrl = BoxControl.BoxCtrl(m,d)
         ee_ctrl = YourControlCode.YourCtrl(m,d)
-        box_handler = BoxControlHandle(m,d)
+        box_handler = ee_ctrl.boxCtrlhdl
         vibrating_box = VibratingBox(m, d, "box_mould")
-        diff_settings = box_handler.get_diff_params()
+      
 
     reload = False
 
@@ -323,6 +323,7 @@ def _physics_loop(simulate: _Simulate, loader: Optional[_InternalLoaderType]):
               box_handler.d.ctrl[i] = 0
 
           # Apply vibration to box_mould
+          diff_settings = box_handler.get_diff_params()
           vibrating_box.apply_vibration(curr_time = d.time,amplitude=diff_settings[1], frequency=diff_settings[2])
 
           # Requested slow-down factor.

@@ -66,15 +66,14 @@ class BoxControlHandle:
         return pos_err
 
     def check_goal_reached(self):
-      pos_error = self.get_EE_pos_err()
-      if np.linalg.norm(pos_error)<self.tolerance:
-        box_body_id = mujoco.mj_name2id(self.m, 1, "box_mould")
-        geom_ids = np.where(self.m.geom_bodyid == box_body_id)[0]
-        green_color = np.array([0.0, 1.0, 0.0, 1.0])  # Green color
-        for geom_id in geom_ids:
+      if self.ee_box_collision():
+          box_body_id = mujoco.mj_name2id(self.m, 1, "box_mould")
+          geom_ids = np.where(self.m.geom_bodyid == box_body_id)[0]
+          green_color = np.array([0.0, 1.0, 0.0, 1.0])  # Green color
+          for geom_id in geom_ids:
             self.m.geom_rgba[geom_id] = green_color
-        self.d.ctrl[:6] = 0
-        return True
+          self.d.ctrl[:6] = 0
+          return True
       return False
     
     def quat2SO3(self,quaternion):
@@ -134,6 +133,24 @@ class BoxControlHandle:
         interpolated_pos = (1 - cos_t) * np.array(initial_pos) + cos_t * np.array(target_pos)
         return interpolated_pos
     
+    def ee_box_collision(self):
+     
+        ee_id    = mujoco.mj_name2id(self.m, mujoco.mjtObj.mjOBJ_BODY, "EE_box")
+        plate_id = mujoco.mj_name2id(self.m, mujoco.mjtObj.mjOBJ_BODY, "detection_plate")
+
+    
+        for i in range(self.d.ncon):
+            c = self.d.contact[i]
+            # find which bodies each geom belongs to
+            b1 = self.m.geom_bodyid[c.geom1]
+            b2 = self.m.geom_bodyid[c.geom2]
+
+            # check if one end is EE and the other is the plate
+            if (b1 == ee_id and b2 == plate_id) or (b1 == plate_id and b2 == ee_id):
+                return True
+
+        return False
+        
     ##====================================================================
     ##         Control Utility Functions 
     ##===================================================================

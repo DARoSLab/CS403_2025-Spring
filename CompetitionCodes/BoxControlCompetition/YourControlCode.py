@@ -13,9 +13,12 @@ class YourCtrl:
     self.boxCtrlhdl = BoxControlHandle(self.m,self.d)
     self.boxCtrlhdl.set_difficulty(0.25) #set difficulty level
 
+   
+
   def update(self):
 
    for i in range(6):
        self.d.ctrl[i] = 150.0*(self.init_qpos[i] - self.d.qpos[i])  - 5.2 *self.d.qvel[i]
+  
    
 
